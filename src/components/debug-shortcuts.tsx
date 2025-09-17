@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/toast-context';
 import { logEvent } from '@/lib/analytics';
 
 export function DebugShortcuts() {

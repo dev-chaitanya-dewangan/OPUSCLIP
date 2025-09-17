@@ -54,7 +54,6 @@ src/
 - **Home**: Marketing page with upload options
 - **Dashboard**: Project management interface
 - **Editor**: Video editing workspace
-- **Onboarding**: User onboarding flow
 - **Pricing**: Plan selection and billing
 
 ## Technologies Used
@@ -66,6 +65,7 @@ src/
 - **Zustand** for state management
 - **Framer Motion** for animations
 - **Radix UI** for accessible components
+- **MagicUI** for enhanced UI components
 
 ## Development
 
@@ -85,6 +85,24 @@ npm run build
 
 ```bash
 npm run test
+```
+
+### MagicUI Components
+
+This project uses MagicUI components through the shadcn CLI. To add new MagicUI components:
+
+```bash
+npx shadcn@latest add @magicui/[component-name]
+```
+
+For example, the flickering grid component was added with:
+```bash
+npx shadcn@latest add @magicui/flickering-grid
+```
+
+Components are added to `src/components/ui/` and can be imported directly:
+```tsx
+import { FlickeringGrid } from "@/components/ui/flickering-grid"
 ```
 
 ## Deployment

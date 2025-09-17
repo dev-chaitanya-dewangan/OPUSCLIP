@@ -1,27 +1,37 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { logEvent, usePageView, useCtaClick } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Upload, 
   Zap, 
-  Scissors, 
-  Smartphone, 
-  ArrowRight, 
-  Clock
+  ArrowRight,
+  LogIn,
+  User,
+  Home,
+  Video,
+  FileText,
+  BarChart3,
+  DollarSign,
+  Image
 } from 'lucide-react';
 import { useHeroUpload } from '@/hooks/use-hero-upload';
+import { useSafeRouter } from '@/lib/navigation';
+import { ProcessingCard, ResultCards } from '@/components/url-processing-card';
+import { ExpandableTabs } from '@/components/expandable-tabs';
+import { GradientButton } from '@/components/ui/gradient-button';
+import { FlickeringGrid } from '@/components/ui/flickering-grid';
 
 export default function HomePage() {
-  const router = useRouter();
+  const router = useSafeRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [videoUrl, setVideoUrl] = useState('');
+  const [isProcessingUrl, setIsProcessingUrl] = useState(false);
+  const [showResultCards, setShowResultCards] = useState(false);
   
   const { isUploading, handleUpload } = useHeroUpload();
   
@@ -44,51 +54,112 @@ export default function HomePage() {
     e.preventDefault();
     if (videoUrl) {
       logEvent('home_url_upload', { url: videoUrl });
-      handleUpload({ url: videoUrl });
+      // Instead of directly calling handleUpload, we'll show our custom processing UI
+      setIsProcessingUrl(true);
+      setShowResultCards(false);
     }
+  };
+  
+  const handleProcessingComplete = () => {
+    setShowResultCards(true);
+  };
+  
+  const handleCardClick = (cardType: string) => {
+    logEvent('home_result_card_click', { cardType });
+    // After clicking any card, proceed with the actual upload
+    handleUpload({ url: videoUrl });
   };
   
   const handleGetStarted = () => {
     logEvent('home_get_started');
     handleCtaClick();
-    router.push('/onboarding');
+    router.push('/dashboard');
   };
   
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen page-bg relative font-mono">
+      {/* Flickering grid positioned at the very front of the landing page */}
+      <FlickeringGrid
+        className="fixed inset-0 z-0"
+        squareSize={4}
+        gridGap={6}
+        color="#C65BA7"
+        maxOpacity={0.3}
+        flickerChance={0.1}
+      />
+      
+      {/* Top Navigation Bar */}
+      <div className="w-full py-5 bg-background/50 backdrop-blur-[2px] relative border-b border-accent/10 z-10">
+        <div className="container flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="h-8 w-8 rounded-full bg-primary" />
+            <span className="font-bold text-xl">OpusClip</span>
+          </div>
+          <ExpandableTabs
+            tabs={[
+              { title: "Home", icon: Home },
+              { title: "Videos", icon: Video },
+              { title: "Analytics", icon: BarChart3 },
+              { title: "Reports", icon: FileText },
+              { type: "separator" },
+              { title: "Pricing", icon: DollarSign },
+              { title: "Gallery", icon: Image },
+            ]}
+            activeColor="text-accent"
+            className="rounded-xl p-1"
+          />
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+              <LogIn className="h-4 w-4 mr-2" />
+              Sign In
+            </Button>
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+              <User className="h-4 w-4 mr-2" />
+              Sign Up
+            </Button>
+          </div>
+        </div>
+      </div>
+      
       {/* Hero Section */}
-      <section className="py-20 md:py-32">
+      <section className="py-20 md:py-32 relative z-10">
         <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <Badge className="mb-4" variant="secondary">
-              <Zap className="mr-1 h-3 w-3" />
-              AI-Powered Video Editing
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="mb-6 px-4 py-1.5 rounded-full text-xs font-mono tracking-widest bg-accent/10 text-accent border border-accent/20">
+              <Zap className="mr-2 h-3 w-3 inline" />
+              AI-POWERED VIDEO EDITING
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Transform Long Videos into <span className="text-primary">Engaging Clips</span>
+            
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight tracking-tight">
+              <span className="block mb-2">TRANSFORM LONG VIDEOS</span>
+              <span className="block text-accent">INTO ENGAGING CLIPS</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Create, edit, and schedule short-form content automatically. Save hours of editing with AI-powered tools.
+            
+            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed font-mono">
+              CREATE, EDIT, AND SCHEDULE SHORT-FORM CONTENT AUTOMATICALLY. 
+              SAVE HOURS OF EDITING WITH AI-POWERED TOOLS.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Button 
-                size="lg" 
+              <GradientButton
                 onClick={handleGetStarted}
                 disabled={isUploading}
+                className="px-8 py-4 text-base font-mono font-bold tracking-wider rounded-xl text-lg transition-all duration-300 hover:scale-105"
               >
-                Get Started Free
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+                GET STARTED FREE
+                <ArrowRight className="ml-3 h-5 w-5" />
+              </GradientButton>
+              
               <Button 
-                size="lg" 
                 variant="outline"
                 onClick={handleFileUpload}
                 disabled={isUploading}
+                className="px-8 py-4 text-base font-mono font-bold tracking-wider rounded-xl border-2 bg-background/50 hover:bg-accent/10 text-foreground border-accent/30 hover:border-accent/50 transition-all duration-300"
               >
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Video
+                <Upload className="mr-3 h-5 w-5" />
+                UPLOAD VIDEO
               </Button>
+              
               <input 
                 type="file" 
                 ref={fileInputRef} 
@@ -98,204 +169,39 @@ export default function HomePage() {
               />
             </div>
             
-            <div className="bg-muted rounded-xl p-8 max-w-2xl mx-auto">
-              <form onSubmit={handleUrlSubmit} className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
-                  <Label htmlFor="video-url" className="sr-only">Video URL</Label>
-                  <Input 
-                    id="video-url"
-                    placeholder="Paste a video URL (YouTube, Vimeo, etc.)" 
-                    value={videoUrl}
-                    onChange={(e) => setVideoUrl(e.target.value)}
-                    disabled={isUploading}
-                  />
-                </div>
-                <Button type="submit" disabled={!videoUrl || isUploading}>
-                  {isUploading ? 'Processing...' : 'Import'}
-                </Button>
-              </form>
-              <p className="text-sm text-muted-foreground mt-3">
-                Supported platforms: YouTube, Vimeo, and direct video links
+            <div className="max-w-2xl mx-auto rounded-2xl bg-background/70 backdrop-blur-xl border border-accent/20 p-8 shadow-2xl shadow-accent/10">
+              {isProcessingUrl ? (
+                showResultCards ? (
+                  <ResultCards onCardClick={handleCardClick} />
+                ) : (
+                  <ProcessingCard url={videoUrl} onProcessingComplete={handleProcessingComplete} />
+                )
+              ) : (
+                <form onSubmit={handleUrlSubmit} className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <Label htmlFor="video-url" className="sr-only">VIDEO URL</Label>
+                    <Input 
+                      id="video-url"
+                      placeholder="PASTE A VIDEO URL (YOUTUBE, VIMEO, ETC.)" 
+                      value={videoUrl}
+                      onChange={(e) => setVideoUrl(e.target.value)}
+                      disabled={isUploading}
+                      className="h-14 px-5 rounded-xl font-mono text-base border-accent/30 focus:border-accent focus:ring-2 focus:ring-accent/30 transition-all duration-300"
+                    />
+                  </div>
+                  <GradientButton
+                    type="submit" 
+                    disabled={!videoUrl || isUploading}
+                    className="h-14 px-8 rounded-xl font-mono font-bold text-base transition-all duration-300 hover:scale-105"
+                  >
+                    {isUploading ? 'PROCESSING...' : 'IMPORT'}
+                  </GradientButton>
+                </form>
+              )}
+              <p className="text-xs text-muted-foreground mt-4 font-mono">
+                SUPPORTED PLATFORMS: YOUTUBE, VIMEO, AND DIRECT VIDEO LINKS
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Logos Section */}
-      <section className="py-12 bg-muted/50">
-        <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold mb-2">Trusted by creators worldwide</h2>
-            <p className="text-muted-foreground">Join thousands of content creators who save hours every week</p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-            {['Logo A', 'Logo B', 'Logo C', 'Logo D', 'Logo E'].map((logo, index) => (
-              <div key={index} className="flex items-center justify-center">
-                <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* Features Section */}
-      <section className="py-20">
-        <div className="container">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-4">Powerful Features for Creators</h2>
-            <p className="text-muted-foreground">
-              Everything you need to create engaging content faster
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card>
-              <CardHeader>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Zap className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>AI Models</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Leverage cutting-edge AI to enhance your video content automatically
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Scissors className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Clip Anything</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Transform long videos into engaging clips with one click
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Smartphone className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Reframe Anything</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Automatically reframe your content for different aspect ratios
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-      
-      {/* Workflow Section */}
-      <section className="py-20 bg-muted/50">
-        <div className="container">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Simplified Workflow</h2>
-            <p className="text-muted-foreground">
-              From import to publication, we've got you covered
-            </p>
-          </div>
-          
-          <div className="relative">
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-primary/20 transform translate-x-px hidden md:block"></div>
-            
-            <div className="space-y-12 pl-0 md:pl-20 relative">
-              <div className="relative">
-                <div className="absolute -left-20 top-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center hidden md:flex">
-                  <Upload className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Auto Import</CardTitle>
-                    <CardDescription>Connect your video sources for automatic importing</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    Connect YouTube, Vimeo, or upload directly to automatically import your content.
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <div className="relative">
-                <div className="absolute -left-20 top-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center hidden md:flex">
-                  <Scissors className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Auto Edit</CardTitle>
-                    <CardDescription>Let AI create engaging clips from your content</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    Our AI analyzes your video and creates engaging clips optimized for each platform.
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <div className="relative">
-                <div className="absolute -left-20 top-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center hidden md:flex">
-                  <Clock className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Auto Scheduling</CardTitle>
-                    <CardDescription>Schedule your content across platforms</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    Automatically schedule your content to publish at optimal times across all your channels.
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Stats Section */}
-      <section className="py-20">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold mb-2">85%</div>
-              <p className="text-muted-foreground">Time saved on editing</p>
-            </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">3x</div>
-              <p className="text-muted-foreground">More content published</p>
-            </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">98%</div>
-              <p className="text-muted-foreground">Customer satisfaction</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to transform your content creation?</h2>
-            <p className="text-primary-foreground/80 mb-8">
-              Join thousands of creators who save hours every week with Opus Clip
-            </p>
-            <Button 
-              size="lg" 
-              variant="secondary" 
-              onClick={handleGetStarted}
-              disabled={isUploading}
-            >
-              Start Free Trial
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         </div>
       </section>

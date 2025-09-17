@@ -57,7 +57,7 @@ export function EditorShell() {
       e.preventDefault()
       playing ? pause() : play()
     },
-    'K': () => playing ? pause() : play(),
+    'K': () => { playing ? pause() : play() },
     'J': () => setCurrentTime(Math.max(0, currentTime - 10)),
     'L': () => setCurrentTime(Math.min(duration, currentTime + 10)),
     'S': () => { 

@@ -74,13 +74,6 @@
 - [ ] Timeline scrubbing works
 - [ ] Export dialog opens
 
-### Onboarding
-- [ ] Wizard progresses through steps
-- [ ] Back/Next buttons work
-- [ ] Form validation works
-- [ ] State persists between steps
-- [ ] Completion redirects correctly
-
 ## Accessibility Checks
 - [ ] All interactive elements are keyboard accessible
 - [ ] Focus rings are visible

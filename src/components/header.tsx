@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronDown } from 'lucide-react'
+import { Menu, X, ChevronDown, Home, Video, FileText, BarChart3 } from 'lucide-react'
+import { ExpandableTabs } from '@/components/expandable-tabs'
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -18,6 +19,20 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center">
+          <ExpandableTabs
+            tabs={[
+              { title: "Home", icon: Home },
+              { title: "Videos", icon: Video },
+              { title: "Analytics", icon: BarChart3 },
+              { title: "Reports", icon: FileText },
+            ]}
+            activeColor="text-primary"
+            className="mx-4"
+          />
+        </div>
+
+        {/* Right side navigation */}
         <nav className="hidden md:flex items-center space-x-6 lg:space-x-8">
           <div className="relative">
             <button

@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useStore } from '@/lib/store';
+import { useState, useEffect } from 'react';
 import { logEvent, usePageView, useCtaClick } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,12 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { CheckIcon } from 'lucide-react';
 import { listPlans } from '@/lib/db';
 import { Plan } from '@/lib/types';
+import { useSafeRouter } from '@/lib/navigation';
 
 export default function PricingPage() {
-  const router = useRouter();
-  const { setPlan } = useStore((state) => ({
-    setPlan: state.setPlan
-  }));
+  const router = useSafeRouter();
   const [isAnnual, setIsAnnual] = useState(true);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +22,7 @@ export default function PricingPage() {
   const handleCtaClick = useCtaClick('pricing_cta');
   
   // Fetch plans on mount
-  useState(() => {
+  useEffect(() => {
     const fetchPlans = async () => {
       try {
         const fetchedPlans = await listPlans();
@@ -39,15 +35,12 @@ export default function PricingPage() {
     };
     
     fetchPlans();
-  });
+  }, []);
   
   const handleStartTrial = async (planId: string) => {
     try {
       logEvent('pricing_start_trial', { planId });
       handleCtaClick();
-      
-      // Update user profile with selected plan
-      setPlan(planId);
       
       // Navigate to dashboard
       router.push('/dashboard');
@@ -78,25 +71,25 @@ export default function PricingPage() {
           {[1, 2].map((i) => (
             <Card key={i} className="flex flex-col">
               <CardHeader>
-                <Skeleton className="h-8 w-32 mb-2" />
-                <Skeleton className="h-4 w-48" />
+                <div className="h-8 w-32 mb-2 bg-muted animate-pulse rounded"></div>
+                <div className="h-4 w-48 bg-muted animate-pulse rounded"></div>
               </CardHeader>
               <CardContent className="flex-1">
                 <div className="mb-6">
-                  <Skeleton className="h-12 w-32" />
-                  <Skeleton className="h-4 w-24 mt-2" />
+                  <div className="h-12 w-32 bg-muted animate-pulse rounded"></div>
+                  <div className="h-4 w-24 mt-2 bg-muted animate-pulse rounded"></div>
                 </div>
                 <div className="space-y-3">
                   {[1, 2, 3, 4, 5].map((j) => (
                     <div key={j} className="flex items-center">
-                      <Skeleton className="h-4 w-4 mr-2" />
-                      <Skeleton className="h-4 w-40" />
+                      <div className="h-4 w-4 mr-2 bg-muted animate-pulse rounded"></div>
+                      <div className="h-4 w-40 bg-muted animate-pulse rounded"></div>
                     </div>
                   ))}
                 </div>
               </CardContent>
               <CardFooter>
-                <Skeleton className="h-10 w-full" />
+                <div className="h-10 w-full bg-muted animate-pulse rounded"></div>
               </CardFooter>
             </Card>
           ))}
@@ -182,9 +175,4 @@ export default function PricingPage() {
       </div>
     </div>
   );
-}
-
-// Simple skeleton component for loading state
-function Skeleton({ className }: { className: string }) {
-  return <div className={`bg-muted animate-pulse rounded ${className}`}></div>;
 }

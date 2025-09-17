@@ -2,12 +2,12 @@
  * Hook for handling marketing hero upload functionality
  */
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useCallback } from 'react';
+import { useToast } from '@/components/toast-context';
 import { useStore } from '@/lib/store';
 import { uid } from '@/lib/utils';
 import { logEvent } from '@/lib/analytics';
+import { useSafeRouter } from '@/lib/navigation';
 
 interface UploadOptions {
   url?: string;
@@ -15,12 +15,17 @@ interface UploadOptions {
 }
 
 export function useHeroUpload() {
-  const router = useRouter();
+  const router = useSafeRouter();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const createProject = useStore((state) => state.createProject);
   
-  const handleUpload = async ({ url, file }: UploadOptions): Promise<void> => {
+  const handleUpload = useCallback(async ({ url, file }: UploadOptions): Promise<void> => {
+    // Prevent multiple simultaneous uploads
+    if (isUploading) {
+      return;
+    }
+    
     setIsUploading(true);
     
     try {
@@ -59,8 +64,10 @@ export function useHeroUpload() {
         duration: 3000
       });
       
-      // Navigate to editor
-      router.push(`/editor/${project.id}`);
+      // Navigate to editor using a slight delay to ensure state is updated
+      setTimeout(() => {
+        router.push(`/editor/${project.id}`);
+      }, 0);
     } catch (error: unknown) {
       logEvent('hero_upload_error', { error: error instanceof Error ? error.message : 'Unknown error' });
       
@@ -73,7 +80,7 @@ export function useHeroUpload() {
     } finally {
       setIsUploading(false);
     }
-  };
+  }, [isUploading, createProject, router, toast]);
   
   return {
     isUploading,

@@ -1,13 +1,20 @@
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AnalyticsProvider } from '@/components/analytics-provider';
 import { DebugPanel } from '@/components/debug-panel';
 import { DebugShortcuts } from '@/components/debug-shortcuts';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { ToastProvider } from '@/components/toast-context';
+import { FlickeringGrid } from '@/components/ui/flickering-grid';
 
-const inter = Inter({ subsets: ['latin'] });
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-geist-mono',
+});
 
 export const metadata: Metadata = {
   title: 'Opus Clip - AI-Powered Video Editing',
@@ -20,13 +27,25 @@ export default function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <AnalyticsProvider />
-        <main>{children}</main>
-        <Toaster />
-        <DebugPanel />
-        <DebugShortcuts />
+    <html lang="en" className="dark">
+      <body className={`${ibmPlexMono.variable} font-mono dark relative min-h-screen`}>
+        <FlickeringGrid
+          className="fixed inset-0 z-[-1]"
+          squareSize={4}
+          gridGap={6}
+          color="#C65BA7"
+          maxOpacity={0.5}
+          flickerChance={0.3}
+        />
+        <ErrorBoundary>
+          <ToastProvider>
+            <AnalyticsProvider />
+            <main className="relative z-10">{children}</main>
+            <Toaster />
+            <DebugPanel />
+            <DebugShortcuts />
+          </ToastProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

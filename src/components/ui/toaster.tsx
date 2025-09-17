@@ -1,6 +1,6 @@
 'use client';
 
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/toast-context';
 
 export function Toaster() {
   const { toasts } = useToast();

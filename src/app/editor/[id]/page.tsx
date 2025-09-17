@@ -13,8 +13,10 @@ import { timecode } from '@/lib/utils';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
 import { Play, Pause, Square, Scissors, Download } from 'lucide-react';
 import { Project, Clip } from '@/lib/types';
+import { useSafeRouter } from '@/lib/navigation';
 
 export default function EditorPage() {
+  const router = useSafeRouter();
   const params = useParams();
   const projectId = params.id as string;
   
@@ -93,7 +95,8 @@ export default function EditorPage() {
     return () => {
       setActiveProject(null);
     };
-  }, [projectId, setActiveProject, setDuration]);
+  }, [projectId]); // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Intentionally excluding setActiveProject and setDuration to prevent infinite re-renders
   
   const handlePlayPause = () => {
     if (playing) {

@@ -10,40 +10,6 @@ import {
 import * as db from './db';
 import { delay } from './utils';
 
-// Onboarding Slice
-interface OnboardingState {
-  reasons: string[];
-  role: string;
-  plan: string;
-  status: 'not-started' | 'in-progress' | 'completed';
-}
-
-interface OnboardingActions {
-  setReasons: (reasons: string[]) => void;
-  setRole: (role: string) => void;
-  setPlan: (plan: string) => void;
-  setStatus: (status: 'not-started' | 'in-progress' | 'completed') => void;
-  resetOnboarding: () => void;
-}
-
-const initialOnboardingState: OnboardingState = {
-  reasons: [],
-  role: '',
-  plan: '',
-  status: 'not-started'
-};
-
-const createOnboardingSlice = (
-  set: (partial: Partial<AppState>) => void
-): OnboardingState & OnboardingActions => ({
-  ...initialOnboardingState,
-  setReasons: (reasons) => set({ reasons }),
-  setRole: (role) => set({ role }),
-  setPlan: (plan) => set({ plan }),
-  setStatus: (status) => set({ status }),
-  resetOnboarding: () => set({ ...initialOnboardingState })
-});
-
 // Projects Slice
 interface ProjectsState {
   entities: Record<string, Project>;
@@ -68,10 +34,15 @@ const initialProjectsState: ProjectsState = {
 };
 
 const createProjectsSlice = (
-  set: (partial: Partial<AppState> | ((state: AppState) => Partial<AppState>)) => void
+  set: (partial: Partial<AppState> | ((state: AppState) => Partial<AppState>)) => void,
+  get: () => AppState
 ): ProjectsState & ProjectsActions => ({
   ...initialProjectsState,
   fetchProjects: async () => {
+    const state = get();
+    // Prevent multiple simultaneous fetches
+    if (state.loading) return;
+    
     set({ loading: true, error: null });
     try {
       const projects = await db.listProjects();
@@ -224,8 +195,7 @@ const createEditorSlice = (
 });
 
 // Main Store
-type AppState = OnboardingState & 
-  OnboardingActions & 
+type AppState = 
   ProjectsState & 
   ProjectsActions & 
   EditorState & 
@@ -233,18 +203,13 @@ type AppState = OnboardingState &
 
 export const useStore = create<AppState>()(
   persist(
-    (set) => ({
-      ...createOnboardingSlice(set),
-      ...createProjectsSlice(set),
+    (set, get) => ({
+      ...createProjectsSlice(set, get),
       ...createEditorSlice(set)
     }),
     {
       name: 'opus-clip-storage',
       partialize: (state) => ({
-        reasons: state.reasons,
-        role: state.role,
-        plan: state.plan,
-        status: state.status,
         aspect: state.aspect,
         captionsVisible: state.captionsVisible,
         reframeEnabled: state.reframeEnabled

@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Homepage with video upload functionality
 - Dashboard for project management
 - Video editor with timeline and playback controls
-- Onboarding flow for new users
 - Pricing page with plan selection
 - Responsive design for all screen sizes
 - Keyboard shortcuts for efficient editing
