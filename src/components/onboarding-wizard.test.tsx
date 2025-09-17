@@ -1,10 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useStore } from '@/lib/store'
 import { OnboardingWizard } from '@/components/onboarding-wizard'
 import '@testing-library/jest-dom'
 
-// Mock next/router
-jest.mock('next/router', () => ({
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
   useRouter() {
     return {
       push: jest.fn(),
@@ -71,33 +71,41 @@ describe('OnboardingWizard', () => {
     expect(screen.getByText("What's your role?")).toBeInTheDocument()
   })
 
-  it('completes the onboarding flow', () => {
+  it('completes the onboarding flow', async () => {
     render(<OnboardingWizard />)
     
     // Step 1: Select reason
-    const reasonCheckbox = screen.getByLabelText('Create short-form content')
-    fireEvent.click(reasonCheckbox)
+    fireEvent.click(screen.getByLabelText('Create short-form content'))
     fireEvent.click(screen.getByText('Continue'))
     
+    // Wait for step 2
+    await screen.findByText("What's your role?")
+
     // Step 2: Select role
-    const roleRadio = screen.getByLabelText('Content Creator')
-    fireEvent.click(roleRadio)
+    fireEvent.click(screen.getByLabelText('Content Creator'))
     fireEvent.click(screen.getByText('Continue'))
     
-    // Step 3: Select plan
-    const planCard = screen.getByText('Overlap Pro').closest('div')
-    if (planCard) {
-      fireEvent.click(planCard)
-    }
-    fireEvent.click(screen.getByText('Continue'))
+    // Wait for step 3
+    await screen.findByText("Which plan interests you?")
+
+    // Step 3: Select plan by clicking the trial button
+    fireEvent.click(screen.getByText('Start 7-day Free Trial'))
     
+    // Wait for step 4
+    await screen.findByText("What brings you to OpusClip?")
+
     // Step 4: Continue
     fireEvent.click(screen.getByText('Continue'))
     
+    // Wait for step 5
+    await screen.findByText("You're all set!")
+
     // Step 5: Get started
     fireEvent.click(screen.getByText('Get Started'))
     
     // Check that setStatus was called with 'completed'
-    expect(mockSetStatus).toHaveBeenCalledWith('completed')
+    await waitFor(() => {
+      expect(mockSetStatus).toHaveBeenCalledWith('completed')
+    })
   })
 })

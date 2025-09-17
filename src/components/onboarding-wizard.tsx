@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '@/lib/store'
+import { shallow } from 'zustand/shallow'
 import { logEvent, usePageView } from '@/lib/analytics'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -105,7 +106,7 @@ export function OnboardingWizard() {
     setPlan,
     setStatus
   } = useStore(
-    useMemo(() => (state) => ({
+    (state) => ({
       reasons: state.reasons,
       role: state.role,
       plan: state.plan,
@@ -114,7 +115,8 @@ export function OnboardingWizard() {
       setRole: state.setRole,
       setPlan: state.setPlan,
       setStatus: state.setStatus
-    }), [])
+    }),
+    shallow
   )
   
   const [currentStep, setCurrentStep] = useState(1)

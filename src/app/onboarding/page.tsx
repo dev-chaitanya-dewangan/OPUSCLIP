@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/lib/store';
+import { shallow } from 'zustand/shallow';
 import { logEvent, usePageView } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,13 +34,14 @@ const ROLES = [
 export default function OnboardingPage() {
   const router = useRouter();
   const { reasons, role, setReasons, setRole, setStatus } = useStore(
-    useMemo(() => (state) => ({
+    (state) => ({
       reasons: state.reasons,
       role: state.role,
       setReasons: state.setReasons,
       setRole: state.setRole,
-      setStatus: state.setStatus
-    }), [])
+      setStatus: state.setStatus,
+    }),
+    shallow
   );
   
   const [step, setStep] = useState(1);
