@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import { IBM_Plex_Mono } from 'next/font/google';
+import { Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AnalyticsProvider } from '@/components/analytics-provider';
@@ -10,10 +10,12 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { ToastProvider } from '@/components/toast-context';
 import { FlickeringGrid } from '@/components/ui/flickering-grid';
 
-const ibmPlexMono = IBM_Plex_Mono({
+// Define the font to be used across all routes
+const geistMono = Geist_Mono({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-geist-mono',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -27,8 +29,8 @@ export default function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${ibmPlexMono.variable} font-mono dark relative min-h-screen`}>
+    <html lang="en" className={`dark ${geistMono.variable}`}>
+      <body className="font-mono dark relative min-h-screen">
         <FlickeringGrid
           className="fixed inset-0 z-[-1]"
           squareSize={4}
