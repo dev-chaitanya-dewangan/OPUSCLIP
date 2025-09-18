@@ -7,13 +7,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, Home, Video, BarChart3, FileText, DollarSign, Image } from 'lucide-react';
 import { listPlans } from '@/lib/db';
 import { Plan } from '@/lib/types';
-import { useSafeRouter } from '@/lib/navigation';
+import { ExpandableTabs } from '@/components/expandable-tabs';
+import { useTransitionRouter } from '@/hooks/use-transition-router';
 
 export default function PricingPage() {
-  const router = useSafeRouter();
+  const router = useTransitionRouter();
   const [isAnnual, setIsAnnual] = useState(true);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,8 +43,12 @@ export default function PricingPage() {
       logEvent('pricing_start_trial', { planId });
       handleCtaClick();
       
-      // Navigate to dashboard
-      router.push('/dashboard');
+      // Navigate to dashboard with transition
+      import('@/hooks/use-transition-router').then(module => {
+        const { useTransitionRouter } = module;
+        const router = useTransitionRouter();
+        router.push('/dashboard');
+      });
     } catch (error) {
       console.error('Failed to start trial:', error);
     }
@@ -52,6 +57,37 @@ export default function PricingPage() {
   if (loading) {
     return (
       <div className="container py-12">
+        {/* Top Navigation Bar */}
+        <div className="w-full py-5 bg-background/50 backdrop-blur-[2px] relative border-b border-accent/10 mb-8">
+          <div className="container flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 rounded-full bg-primary" />
+              <span className="font-bold text-xl">OpusClip</span>
+            </div>
+            <ExpandableTabs
+              tabs={[
+                { title: "Home", icon: Home, href: "/" },
+                { title: "Videos", icon: Video, href: "/dashboard" },
+                { title: "Analytics", icon: BarChart3, href: "/dashboard" },
+                { title: "Reports", icon: FileText, href: "/dashboard" },
+                { type: "separator" },
+                { title: "Pricing", icon: DollarSign, href: "/pricing" },
+                { title: "Gallery", icon: Image, href: "/dashboard" },
+              ]}
+              activeColor="text-accent"
+              className="rounded-xl p-1"
+            />
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+                Sign In
+              </Button>
+              <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+                Sign Up
+              </Button>
+            </div>
+          </div>
+        </div>
+        
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold mb-4">Choose Your Plan</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -100,6 +136,37 @@ export default function PricingPage() {
   
   return (
     <div className="container py-12">
+      {/* Top Navigation Bar */}
+      <div className="w-full py-5 bg-background/50 backdrop-blur-[2px] relative border-b border-accent/10 mb-8">
+        <div className="container flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="h-8 w-8 rounded-full bg-primary" />
+            <span className="font-bold text-xl">OpusClip</span>
+          </div>
+          <ExpandableTabs
+            tabs={[
+              { title: "Home", icon: Home, href: "/" },
+              { title: "Videos", icon: Video, href: "/dashboard" },
+              { title: "Analytics", icon: BarChart3, href: "/dashboard" },
+              { title: "Reports", icon: FileText, href: "/dashboard" },
+              { type: "separator" },
+              { title: "Pricing", icon: DollarSign, href: "/pricing" },
+              { title: "Gallery", icon: Image, href: "/dashboard" },
+            ]}
+            activeColor="text-accent"
+            className="rounded-xl p-1"
+          />
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+              Sign In
+            </Button>
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+              Sign Up
+            </Button>
+          </div>
+        </div>
+      </div>
+      
       <div className="text-center mb-12">
         <h1 className="text-3xl font-bold mb-4">Choose Your Plan</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">

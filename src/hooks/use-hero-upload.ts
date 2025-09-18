@@ -7,7 +7,6 @@ import { useToast } from '@/components/toast-context';
 import { useStore } from '@/lib/store';
 import { uid } from '@/lib/utils';
 import { logEvent } from '@/lib/analytics';
-import { useSafeRouter } from '@/lib/navigation';
 
 interface UploadOptions {
   url?: string;
@@ -15,7 +14,6 @@ interface UploadOptions {
 }
 
 export function useHeroUpload() {
-  const router = useSafeRouter();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const createProject = useStore((state) => state.createProject);
@@ -66,7 +64,11 @@ export function useHeroUpload() {
       
       // Navigate to editor using a slight delay to ensure state is updated
       setTimeout(() => {
-        router.push(`/editor/${project.id}`);
+        import('@/hooks/use-transition-router').then(module => {
+          const { useTransitionRouter } = module;
+          const router = useTransitionRouter();
+          router.push(`/editor/${project.id}`);
+        });
       }, 0);
     } catch (error: unknown) {
       logEvent('hero_upload_error', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -80,7 +82,7 @@ export function useHeroUpload() {
     } finally {
       setIsUploading(false);
     }
-  }, [isUploading, createProject, router, toast]);
+  }, [isUploading, createProject, toast]);
   
   return {
     isUploading,

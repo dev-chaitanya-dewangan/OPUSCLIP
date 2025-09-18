@@ -11,12 +11,12 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { timecode } from '@/lib/utils';
 import { useEditorShortcuts } from '@/hooks/use-editor-shortcuts';
-import { Play, Pause, Square, Scissors, Download } from 'lucide-react';
+import { Play, Pause, Square, Scissors, Download, Home, Video, BarChart3, FileText, DollarSign, Image as ImageIcon } from 'lucide-react';
 import { Project, Clip } from '@/lib/types';
-import { useSafeRouter } from '@/lib/navigation';
+import { ExpandableTabs } from '@/components/expandable-tabs';
+import { useTransitionRouter } from '@/hooks/use-transition-router';
 
 export default function EditorPage() {
-  const router = useSafeRouter();
   const params = useParams();
   const projectId = params.id as string;
   
@@ -136,7 +136,7 @@ export default function EditorPage() {
   
   return (
     <div className="flex flex-col h-screen">
-      {/* Top Bar */}
+      {/* Top Bar with Navigation */}
       <div className="border-b p-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold">{project.title}</h1>
@@ -179,6 +179,37 @@ export default function EditorPage() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
+        </div>
+      </div>
+      
+      {/* Navigation Bar */}
+      <div className="w-full py-3 bg-background/50 backdrop-blur-[2px] relative border-b border-accent/10">
+        <div className="container flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="h-8 w-8 rounded-full bg-primary" />
+            <span className="font-bold text-xl">OpusClip</span>
+          </div>
+          <ExpandableTabs
+            tabs={[
+              { title: "Home", icon: Home, href: "/" },
+              { title: "Videos", icon: Video, href: "/dashboard" },
+              { title: "Analytics", icon: BarChart3, href: "/dashboard" },
+              { title: "Reports", icon: FileText, href: "/dashboard" },
+              { type: "separator" },
+              { title: "Pricing", icon: DollarSign, href: "/pricing" },
+              { title: "Gallery", icon: ImageIcon, href: "/dashboard" },
+            ]}
+            activeColor="text-accent"
+            className="rounded-xl p-1"
+          />
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+              Sign In
+            </Button>
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+              Sign Up
+            </Button>
+          </div>
         </div>
       </div>
       

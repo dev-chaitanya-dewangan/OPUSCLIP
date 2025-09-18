@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, Upload, Film, Calendar, BarChart3 } from 'lucide-react';
+import { Plus, Upload, Film, Calendar, BarChart3, Home, Video, FileText, DollarSign, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,10 +10,10 @@ import { HeroUpload } from '@/components/hero-upload';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useToast } from '@/components/toast-context';
 import { useStore } from '@/lib/store';
+import { ExpandableTabs } from '@/components/expandable-tabs';
+import { TransitionLink } from '@/components/transition-link';
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { toast } = useToast();
   const { entities, ids, loading, error, fetchProjects } = useStore();
   const [showUpload, setShowUpload] = useState(false);
 
@@ -25,13 +24,17 @@ export default function DashboardPage() {
   const handleCreateProject = async () => {
     try {
       // In a real app, this would call an API
-      toast({
+      useToast().toast({
         title: 'Project Created',
         description: 'Your new project has been created successfully.',
       });
-      router.push('/editor');
+      // We'll use our transition router for navigation
+      import('@/hooks/use-transition-router').then(mod => {
+        const { push } = mod.useTransitionRouter();
+        push('/editor/sample-project');
+      });
     } catch (error) {
-      toast({
+      useToast().toast({
         title: 'Error',
         description: 'Failed to create project. Please try again.',
         variant: 'destructive',
@@ -42,6 +45,37 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="container py-8">
+        {/* Top Navigation Bar */}
+        <div className="w-full py-5 bg-background/50 backdrop-blur-[2px] relative border-b border-accent/10 mb-8">
+          <div className="container flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 rounded-full bg-primary" />
+              <span className="font-bold text-xl">OpusClip</span>
+            </div>
+            <ExpandableTabs
+              tabs={[
+                { title: "Home", icon: Home, href: "/" },
+                { title: "Videos", icon: Video, href: "/dashboard" },
+                { title: "Analytics", icon: BarChart3, href: "/dashboard" },
+                { title: "Reports", icon: FileText, href: "/dashboard" },
+                { type: "separator" },
+                { title: "Pricing", icon: DollarSign, href: "/pricing" },
+                { title: "Gallery", icon: Image, href: "/dashboard" },
+              ]}
+              activeColor="text-accent"
+              className="rounded-xl p-1"
+            />
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+                Sign In
+              </Button>
+              <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+                Sign Up
+              </Button>
+            </div>
+          </div>
+        </div>
+        
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <Button onClick={() => setShowUpload(true)}>
@@ -69,6 +103,37 @@ export default function DashboardPage() {
 
   return (
     <div className="container py-8">
+      {/* Top Navigation Bar */}
+      <div className="w-full py-5 bg-background/50 backdrop-blur-[2px] relative border-b border-accent/10 mb-8">
+        <div className="container flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="h-8 w-8 rounded-full bg-primary" />
+            <span className="font-bold text-xl">OpusClip</span>
+          </div>
+          <ExpandableTabs
+            tabs={[
+              { title: "Home", icon: Home, href: "/" },
+              { title: "Videos", icon: Video, href: "/dashboard" },
+              { title: "Analytics", icon: BarChart3, href: "/dashboard" },
+              { title: "Reports", icon: FileText, href: "/dashboard" },
+              { type: "separator" },
+              { title: "Pricing", icon: DollarSign, href: "/pricing" },
+              { title: "Gallery", icon: Image, href: "/dashboard" },
+            ]}
+            activeColor="text-accent"
+            className="rounded-xl p-1"
+          />
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+              Sign In
+            </Button>
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-accent font-mono">
+              Sign Up
+            </Button>
+          </div>
+        </div>
+      </div>
+      
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <div className="flex gap-2">

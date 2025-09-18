@@ -4,18 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { timecode } from '@/lib/utils';
 import { Play, Calendar } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { Project } from '@/lib/types';
 
 interface ProjectCardProps {
   project: Project;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
-  const router = useRouter();
-  
+export function ProjectCard({ project }: ProjectCardProps) {  
   const handleClick = () => {
-    router.push(`/editor/${project.id}`);
+    import('@/hooks/use-transition-router').then(module => {
+      const { useTransitionRouter } = module;
+      const router = useTransitionRouter();
+      router.push(`/editor/${project.id}`);
+    });
   };
   
   return (

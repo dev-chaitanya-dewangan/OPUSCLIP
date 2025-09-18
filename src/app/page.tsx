@@ -73,7 +73,11 @@ export default function HomePage() {
   const handleGetStarted = () => {
     logEvent('home_get_started');
     handleCtaClick();
-    router.push('/dashboard');
+    import('@/hooks/use-transition-router').then(module => {
+      const { useTransitionRouter } = module;
+      const router = useTransitionRouter();
+      router.push('/dashboard');
+    });
   };
   
   return (
@@ -97,13 +101,13 @@ export default function HomePage() {
           </div>
           <ExpandableTabs
             tabs={[
-              { title: "Home", icon: Home },
-              { title: "Videos", icon: Video },
-              { title: "Analytics", icon: BarChart3 },
-              { title: "Reports", icon: FileText },
+              { title: "Home", icon: Home, href: "/" },
+              { title: "Videos", icon: Video, href: "/dashboard" },
+              { title: "Analytics", icon: BarChart3, href: "/dashboard" },
+              { title: "Reports", icon: FileText, href: "/dashboard" },
               { type: "separator" },
-              { title: "Pricing", icon: DollarSign },
-              { title: "Gallery", icon: Image },
+              { title: "Pricing", icon: DollarSign, href: "/pricing" },
+              { title: "Gallery", icon: Image, href: "/dashboard" },
             ]}
             activeColor="text-accent"
             className="rounded-xl p-1"

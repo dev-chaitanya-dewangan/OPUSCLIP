@@ -9,6 +9,7 @@ import { DebugShortcuts } from '@/components/debug-shortcuts';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { ToastProvider } from '@/components/toast-context';
 import { FlickeringGrid } from '@/components/ui/flickering-grid';
+import { RouteTransitionProvider } from '@/components/route-transition-provider';
 
 // Define the font to be used across all routes
 const geistMono = Geist_Mono({
@@ -41,11 +42,13 @@ export default function RootLayout({
         />
         <ErrorBoundary>
           <ToastProvider>
-            <AnalyticsProvider />
-            <main className="relative z-10">{children}</main>
-            <Toaster />
-            <DebugPanel />
-            <DebugShortcuts />
+            <RouteTransitionProvider>
+              <AnalyticsProvider />
+              <main className="relative z-10">{children}</main>
+              <Toaster />
+              <DebugPanel />
+              <DebugShortcuts />
+            </RouteTransitionProvider>
           </ToastProvider>
         </ErrorBoundary>
       </body>

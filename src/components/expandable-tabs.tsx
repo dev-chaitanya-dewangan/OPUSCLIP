@@ -4,10 +4,12 @@ import * as React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { TransitionLink } from "@/components/transition-link";
 
 interface Tab {
   title: string;
   icon: LucideIcon;
+  href?: string;
   type?: never;
 }
 
@@ -45,7 +47,12 @@ const spanVariants = {
   exit: { width: 0, opacity: 0 },
 };
 
-const transition = { delay: 0.1, type: "spring" as const, bounce: 0, duration: 0.6 };
+const transition = {
+  delay: 0.1,
+  type: "spring" as const,
+  bounce: 0,
+  duration: 0.6,
+};
 
 export function ExpandableTabs({
   tabs,
@@ -59,19 +66,24 @@ export function ExpandableTabs({
   // Only call useOnClickOutside when the ref is not null
   React.useEffect(() => {
     if (outsideClickRef.current) {
-      const handleClickOutside = (event: MouseEvent | TouchEvent | FocusEvent) => {
-        if (outsideClickRef.current && !outsideClickRef.current.contains(event.target as Node)) {
+      const handleClickOutside = (
+        event: MouseEvent | TouchEvent | FocusEvent
+      ) => {
+        if (
+          outsideClickRef.current &&
+          !outsideClickRef.current.contains(event.target as Node)
+        ) {
           setSelected(null);
           onChange?.(null);
         }
       };
 
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('touchstart', handleClickOutside);
-      
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-        document.removeEventListener('touchstart', handleClickOutside);
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.removeEventListener("touchstart", handleClickOutside);
       };
     }
   }, [onChange]);
@@ -97,23 +109,12 @@ export function ExpandableTabs({
         if (tab.type === "separator") {
           return <Separator key={`separator-${index}`} />;
         }
+        
         const Icon = tab.icon;
-        return (
-          <motion.button
-            key={tab.title}
-            variants={buttonVariants}
-            initial={false}
-            animate="animate"
-            custom={selected === index}
-            onClick={() => handleSelect(index)}
-            transition={transition}
-            className={cn(
-              "relative flex items-center rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-300",
-              selected === index
-                ? cn("bg-muted", activeColor)
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
-          >
+        const isLink = !!tab.href;
+        
+        const buttonContent = (
+          <>
             <Icon size={20} />
             <AnimatePresence initial={false}>
               {selected === index && (
@@ -129,6 +130,51 @@ export function ExpandableTabs({
                 </motion.span>
               )}
             </AnimatePresence>
+          </>
+        );
+        
+        if (isLink) {
+          return (
+            <TransitionLink
+              key={tab.title}
+              href={tab.href!}
+              className={cn(
+                "relative flex items-center rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-100",
+                selected === index
+                  ? cn("bg-muted", activeColor)
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <motion.div
+                variants={buttonVariants}
+                initial={false}
+                animate="animate"
+                custom={selected === index}
+                transition={transition}
+              >
+                {buttonContent}
+              </motion.div>
+            </TransitionLink>
+          );
+        }
+        
+        return (
+          <motion.button
+            key={tab.title}
+            variants={buttonVariants}
+            initial={false}
+            animate="animate"
+            custom={selected === index}
+            onClick={() => handleSelect(index)}
+            transition={transition}
+            className={cn(
+              "relative flex items-center rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-100",
+              selected === index
+                ? cn("bg-muted", activeColor)
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            {buttonContent}
           </motion.button>
         );
       })}
